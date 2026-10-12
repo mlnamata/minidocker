@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.vercel/
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+npm-debug.log*
+
+# Generováno skriptem scripts/copy-monaco.mjs (postinstall)
+public/monaco/

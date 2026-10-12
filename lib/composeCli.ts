@@ -441,10 +441,7 @@ async function down(project: ComposeProject, args: string[], ctx: CliContext): P
   const total = cts.length + 1 + (rmi ? imageIds.size : 0);
   w(ctx, c.bold(`[+] Running ${total}/${total}`));
   for (const ct of cts) {
-    if (ct.status === 'running') {
-      await engine.stop(ct.id);
-      w(ctx, ` ${check(`Container ${ct.name}`)}  ${c.green('Stopped')}`);
-    }
+    if (ct.status === 'running') await engine.stop(ct.id);
     await engine.remove(ct.id, true);
     w(ctx, ` ${check(`Container ${ct.name}`)}  ${c.green('Removed')}`);
   }

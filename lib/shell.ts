@@ -5,6 +5,7 @@ import { c, stripAnsi } from './ansi';
 import { runCommandLine } from './cli';
 import type { ForegroundJob } from './cliCommon';
 import { engine } from './engine';
+import { recordCommand } from './learn';
 import { allDirs, projectStore } from './project';
 import { KEYS, load, save } from './storage';
 
@@ -387,6 +388,7 @@ export class Shell {
         code = 1;
         this.write(c.red(`Chyba: ${(e as Error)?.message ?? e}`) + '\n');
       }
+      recordCommand(trimmed, code);
     }
 
     this.fg = null;

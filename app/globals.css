@@ -55,3 +55,29 @@
 .xterm .xterm-viewport {
   background-color: transparent !important;
 }
+
+/* Zvýraznění prvku, o kterém právě mluví tutoriál */
+.tour-highlight {
+  position: relative;
+}
+.tour-highlight::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: 40;
+  pointer-events: none;
+  border: 2px solid var(--color-accent);
+  border-radius: 6px;
+  animation: tour-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tour-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgb(56 189 248 / 0.45);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 6px rgb(56 189 248 / 0);
+  }
+}

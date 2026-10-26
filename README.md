@@ -13,6 +13,7 @@ v zabudovaném prohlížeči. Žádný backend: Node.js běží přímo ve strá
 - **Docker Compose**: `depends_on` (topologické řazení, detekce cyklu), porty, ENV, „DNS“ mezi službami
 - **Perzistence**: projekt, images i kontejnery se ukládají do IndexedDB a obnoví se po reloadu
 - **Export ZIP**: projekt jde spustit i ve skutečném Dockeru
+- **Výuka**: interaktivní tutoriál se zvýrazněním částí aplikace a 13 úkolů s automatickou kontrolou
 
 ## Rychlý start
 
@@ -97,6 +98,21 @@ docker compose up [-d] [--build] | down [--rmi all] | ps [-a] | logs [-f] | buil
 clear, help, cd, pwd         (ostatní příkazy → jsh shell WebContaineru)
 ```
 
+## Výuka
+
+Záložka **Výuka** (při první návštěvě se otevře sama) má dvě části:
+
+1. **Tutoriál** – 14 kroků: co je Docker, rozložení aplikace (popisovaná část bliká modře),
+   Dockerfile instrukce, build, run, prohlížeč, terminál, správa kontejnerů, Compose a omezení.
+   Ukázkové příkazy jde spustit tlačítkem ▶ Vyzkoušet.
+2. **Úkoly** – 13 zadání od lehkých po těžká (build, porty, ID kontejneru, logy, exec, úklid,
+   proměnné prostředí, nová verze image, počet vrstev, vlastní Dockerfile, nginx, Compose, velký úklid).
+   Student je plní sám v terminálu a editoru; aplikace splnění pozná automaticky ze stavu
+   images/kontejnerů/souborů a z příkazů v terminálu. Ke každému úkolu jsou postupně odkrývané nápovědy,
+   aktuální úkol ukazuje lišta pod horní lištou. Postup se ukládá do IndexedDB.
+
+Texty tutoriálu i úkoly (včetně kontrolních funkcí) jsou v `components/learnContent.tsx`.
+
 ## Šablony
 
 1. **Node Express**: `server.js`, `package.json`, `Dockerfile` (node:20-alpine, `npm install`, EXPOSE 3000)
@@ -115,6 +131,7 @@ lib/cli.ts            docker CLI;  lib/composeCli.ts – docker compose
 lib/shell.ts          shell nad xterm.js (editace řádku, historie, úlohy na popředí)
 lib/project.ts        soubory projektu + synchronizace do WebContaineru
 lib/storage.ts        IndexedDB (idb-keyval)
+lib/learn.ts          stav výuky, log příkazů, kontext pro kontrolu úkolů
 lib/templates.ts      šablony projektů
 scripts/copy-monaco.mjs  kopie Monaco editoru do public/
 ```

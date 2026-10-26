@@ -69,7 +69,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="flex shrink-0 items-center gap-2 border-b border-border bg-panel px-3 py-2">
+    <header data-tour="topbar" className="flex shrink-0 items-center gap-2 border-b border-border bg-panel px-3 py-2">
       <div className="mr-1 flex shrink-0 items-center gap-2">
         <IconBox width={20} height={20} className="text-sky-400" />
         <span className="hidden text-[15px] font-semibold tracking-tight sm:inline">MiniDocker</span>

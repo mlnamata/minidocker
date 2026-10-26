@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { engine } from '@/lib/engine';
+import { dockerStore, engine } from '@/lib/engine';
+import { initLearn, learnStore } from '@/lib/learn';
 import { initProject, projectStore, startProjectSync } from '@/lib/project';
 import { useStore } from '@/lib/store';
 import { openInBrowser, terminalBridge, uiStore, type MobileTab } from '@/lib/ui';
@@ -10,6 +11,7 @@ import EditorPane from './EditorPane';
 import FileExplorer from './FileExplorer';
 import { IconBox, IconCode, IconFolder, IconTerminal } from './icons';
 import RightPanel from './RightPanel';
+import TaskBar from './TaskBar';
 import TerminalPane from './TerminalPane';
 import TopBar from './TopBar';
 
@@ -62,10 +64,12 @@ export default function MiniDocker() {
     const offOpen = engine.onOpen((url) => openInBrowser(url));
     if (process.env.NODE_ENV !== 'production') {
       // Ladicí přístup z konzole prohlížeče (jen v dev režimu)
-      Object.assign(window, { __minidocker: { engine, projectStore, uiStore, terminalBridge } });
+      Object.assign(window, { __minidocker: { engine, dockerStore, projectStore, uiStore, learnStore, terminalBridge } });
     }
     (async () => {
-      await Promise.all([projectStore.get().loaded ? null : initProject(), engine.loadState()]);
+      const [, , firstVisit] = await Promise.all([projectStore.get().loaded ? null : initProject(), engine.loadState(), initLearn()]);
+      // Při první návštěvě rovnou otevřeme tutoriál
+      if (firstVisit) uiStore.set({ rightTab: 'learn', mobileTab: 'docker' });
       if (!support.ok) {
         uiStore.set({ wc: 'unsupported', wcError: support.error ?? null });
         engine.fail(new Error(support.error));
@@ -104,14 +108,15 @@ export default function MiniDocker() {
     <div className="flex h-dvh flex-col overflow-hidden">
       <TopBar />
       <StatusBanner support={support} />
+      <TaskBar />
 
       <div className="flex min-h-0 flex-1 flex-col" style={{ ['--term-h' as string]: `${termHeight}px` }}>
         {/* Horní část: průzkumník | editor | docker panel */}
         <div className={`${mobileTab === 'terminal' ? 'hidden' : 'flex'} min-h-0 flex-1 lg:flex`}>
-          <aside className={`${show('files')} min-w-0 flex-1 border-border lg:flex lg:w-60 lg:flex-none lg:border-r`}>
+          <aside data-tour="explorer" className={`${show('files')} min-w-0 flex-1 border-border lg:flex lg:w-60 lg:flex-none lg:border-r`}>
             <FileExplorer />
           </aside>
-          <main className={`${show('editor')} min-w-0 flex-1 lg:flex`}>
+          <main data-tour="editor" className={`${show('editor')} min-w-0 flex-1 lg:flex`}>
             <EditorPane />
           </main>
           <section className={`${show('docker')} min-w-0 flex-1 border-border lg:flex lg:w-[400px] lg:flex-none lg:border-l xl:w-[460px]`}>
@@ -138,7 +143,7 @@ export default function MiniDocker() {
         />
 
         {/* Terminál – zůstává namountovaný i na mobilu, jen se skrývá */}
-        <section className={`${show('terminal')} min-h-0 flex-1 lg:flex lg:h-[var(--term-h)] lg:flex-none`}>
+        <section data-tour="terminal" className={`${show('terminal')} min-h-0 flex-1 lg:flex lg:h-[var(--term-h)] lg:flex-none`}>
           <TerminalPane />
         </section>
       </div>

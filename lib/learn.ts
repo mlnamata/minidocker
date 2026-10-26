@@ -13,6 +13,11 @@ import type { Container, Image } from './types';
 export type LearnMode = 'tutorial' | 'tasks';
 
 export interface LearnState {
+  /** Krok běžící prohlídky aplikace (null = prohlídka neběží). */
+  tour: number | null;
+  /** Od kdy se počítají příkazy pro aktuální krok prohlídky. */
+  tourSince: number;
+  tourDone: boolean;
   mode: LearnMode;
   tutorialStep: number;
   tutorialDone: boolean;
@@ -32,6 +37,9 @@ export interface LearnState {
 }
 
 export const learnStore = new Store<LearnState>({
+  tour: null,
+  tourSince: 0,
+  tourDone: false,
   mode: 'tutorial',
   tutorialStep: 0,
   tutorialDone: false,
@@ -50,10 +58,10 @@ const persist = debounced(KEYS.learn, 300);
 /** Vrací true, pokud výuka ještě nebyla nikdy otevřena (první návštěva). */
 export async function initLearn(): Promise<boolean> {
   const saved = await load<Partial<LearnState>>(KEYS.learn);
-  learnStore.set({ ...(saved ?? {}), celebrate: null, highlight: null, currentSince: Date.now(), loaded: true });
+  learnStore.set({ ...(saved ?? {}), tour: null, celebrate: null, highlight: null, currentSince: Date.now(), loaded: true });
   learnStore.subscribe(() => {
-    const { mode, tutorialStep, tutorialDone, current, done, skipped, hints } = learnStore.get();
-    persist({ mode, tutorialStep, tutorialDone, current, done, skipped, hints });
+    const { tourDone, mode, tutorialStep, tutorialDone, current, done, skipped, hints } = learnStore.get();
+    persist({ tourDone, mode, tutorialStep, tutorialDone, current, done, skipped, hints });
   });
   return !saved;
 }
@@ -111,6 +119,14 @@ export function setHighlight(id: string | null): void {
   if (learnStore.get().highlight !== id) learnStore.set({ highlight: id });
 }
 
+export function startTour(step = 0): void {
+  learnStore.set({ tour: step, tourSince: Date.now(), highlight: null });
+}
+
+export function endTour(): void {
+  learnStore.set({ tour: null, tourDone: true });
+}
+
 export function startTask(id: string): void {
   learnStore.set({ current: id, currentSince: Date.now(), celebrate: null, mode: 'tasks' });
 }
@@ -133,6 +149,8 @@ export function skipTask(id: string): void {
 
 export function resetLearn(): void {
   learnStore.set({
+    tour: null,
+    tourDone: false,
     mode: 'tutorial',
     tutorialStep: 0,
     tutorialDone: false,

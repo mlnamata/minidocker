@@ -13,7 +13,7 @@ export function C({ children }: { children: ReactNode }) {
   return <code className="rounded bg-slate-800 px-1 py-px font-mono text-[12px] text-sky-200">{children}</code>;
 }
 
-/** Blok s příkazem. V tutoriálu jde spustit tlačítkem, u úkolů ne (ty si student píše sám). */
+/** Blok s příkazem. V příručce jde spustit tlačítkem, u úkolů ne (ty si student píše sám). */
 export function Cmd({ children, run }: { children: string; run?: boolean }) {
   return (
     <div className="my-2 flex items-start gap-2 rounded-md border border-slate-800 bg-slate-950 px-2.5 py-2">
@@ -77,7 +77,7 @@ function Tip({ children }: { children: ReactNode }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Tutoriál                                                            */
+/* Příručka                                                            */
 /* ------------------------------------------------------------------ */
 
 export interface TutorialStep {
@@ -96,11 +96,14 @@ export const TUTORIAL: TutorialStep[] = [
           MiniDocker je <b>Docker simulátor, který běží celý v tvém prohlížeči</b>. Napíšeš <C>Dockerfile</C>, sestavíš z
           něj image, spustíš kontejner a výslednou aplikaci hned uvidíš – bez instalace čehokoli.
         </p>
-        <p>Výuka má dvě části:</p>
+        <p>Výuka má tři části:</p>
         <ol className="ml-4 list-decimal space-y-1">
           <li>
-            <b>Tutoriál</b> (právě v něm jsi) – krok za krokem ti vysvětlí, co je Docker a jak se v aplikaci pracuje. U
-            ukázek najdeš tlačítko <b>▶ Vyzkoušet</b>, které příkaz spustí za tebe.
+            <b>Prohlídka aplikace</b> – interaktivně tě provede všemi částmi aplikace. Spustíš ji tlačítkem nahoře.
+          </li>
+          <li>
+            <b>Příručka</b> (právě v ní jsi) – podrobně vysvětlí, co je Docker, Dockerfile, příkazy a Compose. U ukázek
+            najdeš tlačítko <b>▶ Vyzkoušet</b>, které příkaz spustí za tebe.
           </li>
           <li>
             <b>Úkoly</b> – dostaneš zadání a musíš ho splnit <b>sám</b>: psát příkazy, upravovat soubory. Aplikace sama
@@ -411,7 +414,7 @@ CMD ["node", "server.js"]`}</Code>
           U úkolů už <b>žádné tlačítko „Vyzkoušet“ není</b> – příkazy píšeš do terminálu sám. Aktuální úkol uvidíš i v
           liště nahoře, a jakmile ho splníš, aplikace ti to hned oznámí.
         </p>
-        <Tip>Tutoriál si můžeš kdykoli zopakovat přepínačem „Tutoriál“ v záložce Výuka.</Tip>
+        <Tip>Příručku i prohlídku si můžeš kdykoli zopakovat v záložce Výuka.</Tip>
       </>
     ),
   },

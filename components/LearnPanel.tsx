@@ -9,6 +9,7 @@ import {
   setHighlight,
   skipTask,
   startTask,
+  startTour,
   taskContext,
   type LearnState,
 } from '@/lib/learn';
@@ -27,7 +28,7 @@ export function nextTask(after: string | null, s: Pick<LearnState, 'done'>): Tas
   return TASKS.slice(from).find((t) => !s.done.includes(t.id)) ?? TASKS.find((t) => !s.done.includes(t.id));
 }
 
-/* ---------------- Tutoriál ---------------- */
+/* ---------------- Příručka ---------------- */
 
 function TutorialView() {
   const step = useStore(learnStore, (s) => s.tutorialStep);
@@ -54,9 +55,21 @@ function TutorialView() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 px-4 pt-3">
+        <button
+          type="button"
+          onClick={() => startTour(0)}
+          className="mb-3 flex w-full items-center gap-3 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-left hover:bg-sky-500/20"
+        >
+          <span className="text-lg">🧭</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-sky-100">Prohlídka aplikace</span>
+            <span className="block text-[11px] text-sky-200/70">Provede tě krok za krokem vším, co MiniDocker umí.</span>
+          </span>
+          <span className="text-[12px] font-medium text-sky-200">Spustit ▶</span>
+        </button>
         <div className="flex items-center justify-between text-[11px] text-slate-500">
           <span>
-            Krok {i + 1} / {TUTORIAL.length}
+            Příručka · {i + 1} / {TUTORIAL.length}
           </span>
           <button type="button" onClick={finish} className="hover:text-slate-300">
             Přeskočit na úkoly →
@@ -319,7 +332,7 @@ export default function LearnPanel() {
         <div className="ml-auto flex rounded-md border border-slate-700 p-0.5 text-[12px]">
           {(
             [
-              ['tutorial', 'Tutoriál'],
+              ['tutorial', 'Příručka'],
               ['tasks', `Úkoly ${done}/${TASKS.length}`],
             ] as const
           ).map(([id, label]) => (

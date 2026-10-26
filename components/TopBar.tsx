@@ -21,6 +21,7 @@ function ToolButton({
   title,
   variant = 'default',
   disabled,
+  tour,
 }: {
   onClick: () => void;
   icon: React.ReactNode;
@@ -28,6 +29,8 @@ function ToolButton({
   title: string;
   variant?: 'default' | 'primary' | 'danger';
   disabled?: boolean;
+  /** Cíl pro prohlídku aplikace (data-tour). */
+  tour?: string;
 }) {
   const styles = {
     default: 'border-slate-700 bg-slate-800/70 text-slate-200 hover:bg-slate-700',
@@ -40,6 +43,7 @@ function ToolButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
+      data-tour={tour}
       className={`flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-[13px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${styles}`}
     >
       {icon}
@@ -76,6 +80,7 @@ export default function TopBar() {
       </div>
 
       <select
+        data-tour="template"
         value={template}
         onChange={(e) => onTemplate(e.target.value)}
         aria-label="Šablona projektu"
@@ -89,7 +94,7 @@ export default function TopBar() {
       </select>
 
       <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <ToolButton onClick={actionBuild} icon={<IconHammer />} label="Build" title="docker build -t <projekt> ." disabled={!ready} />
+        <ToolButton onClick={actionBuild} icon={<IconHammer />} label="Build" title="docker build -t <projekt> ." disabled={!ready} tour="build" />
         <ToolButton
           onClick={actionRun}
           icon={<IconPlay />}
@@ -97,16 +102,17 @@ export default function TopBar() {
           title="Build + docker run -d -p 8080:<port> (u compose projektu docker compose up -d)"
           variant="primary"
           disabled={!ready}
+          tour="run"
         />
         <span className="mx-1 h-5 w-px shrink-0 bg-slate-700" />
-        <ToolButton onClick={actionComposeUp} icon={<IconUp />} label="Compose Up" title="docker compose up" disabled={!ready} />
-        <ToolButton onClick={actionComposeDown} icon={<IconDown />} label="Compose Down" title="docker compose down" disabled={!ready} />
+        <ToolButton onClick={actionComposeUp} icon={<IconUp />} label="Compose Up" title="docker compose up" disabled={!ready} tour="compose" />
+        <ToolButton onClick={actionComposeDown} icon={<IconDown />} label="Compose Down" title="docker compose down" disabled={!ready} tour="compose" />
         <span className="mx-1 h-5 w-px shrink-0 bg-slate-700" />
-        <ToolButton onClick={actionExportZip} icon={<IconZip />} label="Export ZIP" title="Stáhnout projekt jako ZIP (spustitelný i ve skutečném Dockeru)" />
-        <ToolButton onClick={actionReset} icon={<IconReset />} label="Reset" title="Smazat vše (projekt, images, kontejnery)" variant="danger" />
+        <ToolButton onClick={actionExportZip} icon={<IconZip />} label="Export ZIP" title="Stáhnout projekt jako ZIP (spustitelný i ve skutečném Dockeru)" tour="export" />
+        <ToolButton onClick={actionReset} icon={<IconReset />} label="Reset" title="Smazat vše (projekt, images, kontejnery)" variant="danger" tour="reset" />
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 pl-1 text-xs text-slate-400" title={status.label}>
+      <div data-tour="status" className="flex shrink-0 items-center gap-2 pl-1 text-xs text-slate-400" title={status.label}>
         <span className={`h-2.5 w-2.5 rounded-full ${status.color}`} />
         <span className="hidden xl:inline">{status.label}</span>
       </div>

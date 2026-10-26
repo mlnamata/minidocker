@@ -279,7 +279,7 @@ export default function FileExplorer() {
         <span className="truncate text-[11px] font-semibold uppercase tracking-wider text-slate-400" title={name}>
           Průzkumník
         </span>
-        <div className="flex gap-0.5">
+        <div data-tour="explorer-actions" className="flex gap-0.5">
           <button
             type="button"
             title={`Nový soubor${targetDir ? ` v ${targetDir}/` : ''}`}

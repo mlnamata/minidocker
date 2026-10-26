@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { dockerStore, engine } from '@/lib/engine';
-import { initLearn, learnStore } from '@/lib/learn';
+import { initLearn, learnStore, startTour } from '@/lib/learn';
 import { initProject, projectStore, startProjectSync } from '@/lib/project';
 import { useStore } from '@/lib/store';
 import { openInBrowser, terminalBridge, uiStore, type MobileTab } from '@/lib/ui';
@@ -12,6 +12,7 @@ import FileExplorer from './FileExplorer';
 import { IconBox, IconCode, IconFolder, IconTerminal } from './icons';
 import RightPanel from './RightPanel';
 import TaskBar from './TaskBar';
+import Tour from './Tour';
 import TerminalPane from './TerminalPane';
 import TopBar from './TopBar';
 
@@ -68,8 +69,8 @@ export default function MiniDocker() {
     }
     (async () => {
       const [, , firstVisit] = await Promise.all([projectStore.get().loaded ? null : initProject(), engine.loadState(), initLearn()]);
-      // Při první návštěvě rovnou otevřeme tutoriál
-      if (firstVisit) uiStore.set({ rightTab: 'learn', mobileTab: 'docker' });
+      // Při první návštěvě uživatele rovnou provedeme aplikací
+      if (firstVisit) startTour(0);
       if (!support.ok) {
         uiStore.set({ wc: 'unsupported', wcError: support.error ?? null });
         engine.fail(new Error(support.error));
@@ -119,7 +120,7 @@ export default function MiniDocker() {
           <main data-tour="editor" className={`${show('editor')} min-w-0 flex-1 lg:flex`}>
             <EditorPane />
           </main>
-          <section className={`${show('docker')} min-w-0 flex-1 border-border lg:flex lg:w-[400px] lg:flex-none lg:border-l xl:w-[460px]`}>
+          <section data-tour="docker-panel" className={`${show('docker')} min-w-0 flex-1 border-border lg:flex lg:w-[400px] lg:flex-none lg:border-l xl:w-[460px]`}>
             <RightPanel />
           </section>
         </div>
@@ -147,6 +148,8 @@ export default function MiniDocker() {
           <TerminalPane />
         </section>
       </div>
+
+      <Tour />
 
       {/* Mobilní navigace mezi panely */}
       <nav className="flex shrink-0 border-t border-border bg-panel lg:hidden" aria-label="Panely">

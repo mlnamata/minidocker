@@ -38,7 +38,8 @@ function useTaskWatcher() {
 
 /** Pomalé blikání prvku, na který ukazuje tutoriál. */
 function useTourHighlight() {
-  const id = useStore(learnStore, (s) => s.highlight);
+  // Během prohlídky zvýrazňuje sama prohlídka
+  const id = useStore(learnStore, (s) => (s.tour === null ? s.highlight : null));
   useEffect(() => {
     if (!id) return;
     const els = document.querySelectorAll(`[data-tour="${id}"]`);

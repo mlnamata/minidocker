@@ -13,7 +13,7 @@ v zabudovaném prohlížeči. Žádný backend: Node.js běží přímo ve strá
 - **Docker Compose**: `depends_on` (topologické řazení, detekce cyklu), porty, ENV, „DNS“ mezi službami
 - **Perzistence**: projekt, images i kontejnery se ukládají do IndexedDB a obnoví se po reloadu
 - **Export ZIP**: projekt jde spustit i ve skutečném Dockeru
-- **Výuka**: interaktivní tutoriál se zvýrazněním částí aplikace a 13 úkolů s automatickou kontrolou
+- **Výuka**: interaktivní prohlídka aplikace, příručka a 13 úkolů s automatickou kontrolou
 
 ## Rychlý start
 
@@ -100,18 +100,19 @@ clear, help, cd, pwd         (ostatní příkazy → jsh shell WebContaineru)
 
 ## Výuka
 
-Záložka **Výuka** (při první návštěvě se otevře sama) má dvě části:
-
-1. **Tutoriál** – 14 kroků: co je Docker, rozložení aplikace (popisovaná část bliká modře),
-   Dockerfile instrukce, build, run, prohlížeč, terminál, správa kontejnerů, Compose a omezení.
-   Ukázkové příkazy jde spustit tlačítkem ▶ Vyzkoušet.
-2. **Úkoly** – 13 zadání od lehkých po těžká (build, porty, ID kontejneru, logy, exec, úklid,
+1. **Prohlídka aplikace** – při první návštěvě se spustí sama (znovu v záložce Výuka). Obrazovka se ztmaví,
+   zvýrazní se vždy jedna část aplikace (lišta, průzkumník, editor, Build/Run, terminál, panely Images /
+   Kontejnery / Prohlížeč, Compose, Export, Reset) a vedle ní bublina s vysvětlením. U interaktivních kroků
+   musí uživatel sám něco udělat (vybrat šablonu, otevřít soubor, kliknout na Build a Run, napsat
+   `docker ps` a `docker stop`) – tlačítko Další se odemkne až po splnění.
+2. **Příručka** – podrobný výklad pojmů, Dockerfile instrukcí, příkazů a Compose k přečtení kdykoli.
+3. **Úkoly** – po prohlídce 13 zadání od lehkých po těžká (build, porty, ID kontejneru, logy, exec, úklid,
    proměnné prostředí, nová verze image, počet vrstev, vlastní Dockerfile, nginx, Compose, velký úklid).
-   Student je plní sám v terminálu a editoru; aplikace splnění pozná automaticky ze stavu
-   images/kontejnerů/souborů a z příkazů v terminálu. Ke každému úkolu jsou postupně odkrývané nápovědy,
-   aktuální úkol ukazuje lišta pod horní lištou. Postup se ukládá do IndexedDB.
+   Student je plní sám v terminálu a editoru; splnění se pozná automaticky ze stavu images/kontejnerů/souborů
+   a z příkazů v terminálu. Nápovědy se odkrývají postupně, aktuální úkol ukazuje lišta pod horní lištou.
+   Postup se ukládá do IndexedDB.
 
-Texty tutoriálu i úkoly (včetně kontrolních funkcí) jsou v `components/learnContent.tsx`.
+Kroky prohlídky jsou v `components/tourSteps.tsx`, příručka a úkoly (včetně kontrol) v `components/learnContent.tsx`.
 
 ## Šablony
 

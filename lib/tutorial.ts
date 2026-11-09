@@ -47,8 +47,8 @@ export interface DoTask extends TaskBase {
   kind: 'do';
   /** Příkaz, který úkol splní (zobrazí se po kliknutí na „Ukázat řešení“). */
   solution?: string;
-  /** Akce místo příkazu (např. načtení šablony). */
-  action?: { label: string; run: () => void };
+  /** Akce místo příkazu (např. načtení šablony). `win` = okno, ve kterém se má zobrazit potvrzení. */
+  action?: { label: string; run: (win: Window) => void };
   check: (ctx: CheckCtx) => boolean;
 }
 
@@ -78,10 +78,10 @@ export interface Lesson {
 function useTemplate(id: string, label: string) {
   return {
     label: `Načíst šablonu „${label}“`,
-    run: () => {
+    run: (win: Window) => {
       const s = projectStore.get();
       if (s.template !== id && Object.keys(s.files).length) {
-        const ok = window.confirm(`Načíst šablonu „${label}“? Aktuální soubory projektu budou nahrazeny (images a kontejnery zůstanou).`);
+        const ok = win.confirm(`Načíst šablonu „${label}“? Aktuální soubory projektu budou nahrazeny (images a kontejnery zůstanou).`);
         if (!ok) return;
       }
       loadTemplate(id);
@@ -826,6 +826,40 @@ export function answerQuiz(task: QuizTask, option: number): boolean {
 export function skipTask(taskId: string): void {
   setDone({ ...tutorialStore.get().done, [taskId]: { t: Date.now(), skipped: true } });
   scheduleEvaluate();
+}
+
+/** Vrátí přeskočený úkol zpět mezi nesplněné. */
+export function unskipTask(taskId: string): void {
+  const done = { ...tutorialStore.get().done };
+  if (!done[taskId]?.skipped) return;
+  delete done[taskId];
+  setDone(done);
+  scheduleEvaluate();
+}
+
+/** Počet nesplněných úkolů v lekcích s indexem < `end`. */
+export function unfinishedBefore(end: number, done: Record<string, TaskProgress>): number {
+  return LESSONS.slice(0, end).reduce((n, l) => n + l.tasks.filter((t) => !done[t.id]).length, 0);
+}
+
+/**
+ * Přeskočí všechny nesplněné úkoly v lekcích s indexem < `end`
+ * (tj. odemkne lekci `end`).
+ */
+export function skipBefore(end: number): void {
+  const done = { ...tutorialStore.get().done };
+  const t = Date.now();
+  for (const lesson of LESSONS.slice(0, end)) {
+    for (const task of lesson.tasks) if (!done[task.id]) done[task.id] = { t, skipped: true };
+  }
+  setDone(done);
+  scheduleEvaluate();
+}
+
+/** Přeskočí zbytek lekce (i nesplněné předchozí lekce) a přejde na další. */
+export function skipLesson(index: number): void {
+  skipBefore(index + 1);
+  if (index < LESSONS.length - 1) setLesson(index + 1);
 }
 
 export function setLesson(index: number): void {

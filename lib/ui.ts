@@ -17,6 +17,8 @@ export interface UiState {
   browserNonce: number;
   /** Vybraná složka v průzkumníku (kam se vytvoří nový soubor). */
   selectedDir: string;
+  /** Tutoriál je otevřený v samostatném okně. */
+  tutorialPopout: boolean;
 }
 
 export const uiStore = new Store<UiState>({
@@ -29,6 +31,7 @@ export const uiStore = new Store<UiState>({
   browserIndex: -1,
   browserNonce: 0,
   selectedDir: '',
+  tutorialPopout: false,
 });
 
 export function openInBrowser(url: string, switchTab = true): void {

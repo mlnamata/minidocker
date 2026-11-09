@@ -14,6 +14,7 @@ import { IconBox, IconCode, IconFolder, IconTerminal } from './icons';
 import RightPanel from './RightPanel';
 import TerminalPane from './TerminalPane';
 import TopBar from './TopBar';
+import TutorialPopout from './TutorialPopout';
 
 function StatusBanner({ support }: { support: SupportInfo }) {
   const wc = useStore(uiStore, (s) => s.wc);
@@ -107,6 +108,7 @@ export default function MiniDocker() {
     <div className="flex h-dvh flex-col overflow-hidden">
       <TopBar />
       <StatusBanner support={support} />
+      <TutorialPopout />
 
       <div className="flex min-h-0 flex-1 flex-col" style={{ ['--term-h' as string]: `${termHeight}px` }}>
         {/* Horní část: průzkumník | editor | docker panel */}

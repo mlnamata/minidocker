@@ -116,8 +116,14 @@ soubory projektu, záložku Prohlížeč a příkazy zadané v terminálu). Na k
 | 8 | Úklid | `docker rm`, `docker rmi`, rozdíl mezi nimi |
 
 Úkoly jdou postupně: další se odemkne až po splnění předchozího (u příkazů se počítá jen to, co
-zadáte po splnění předchozího úkolu). Zaseknutý úkol jde přeskočit, u každého je nápověda
-a řešení, které lze jedním klikem spustit v terminálu. Postup se ukládá do IndexedDB;
+zadáte po splnění předchozího úkolu). U každého úkolu je nápověda a řešení, které lze jedním
+klikem spustit v terminálu.
+
+- **Přeskakování**: jednotlivý úkol („Přeskočit úkol“, jde vrátit), zbytek lekce („Přeskočit
+  lekci →“), nebo rovnou skok na libovolnou lekci („Přeskočit a začít tady“).
+- **Samostatné okno**: ikona ↗ v hlavičce tutoriálu ho otevře v novém okně (třeba na druhém
+  monitoru). Okno sdílí stav s hlavní stránkou; zavřením nebo tlačítkem „Do panelu“ se tutoriál
+  vrátí zpět. Prohlížeč musí pro stránku povolit vyskakovací okna. Postup se ukládá do IndexedDB;
 začít znovu lze z menu lekcí. Obsah lekcí je v `lib/tutorial.ts`.
 
 ## Šablony

@@ -10,8 +10,12 @@ import {
   LESSONS,
   resetTutorial,
   setLesson,
+  skipBefore,
+  skipLesson,
   skipTask,
   tutorialStore,
+  unfinishedBefore,
+  unskipTask,
   type Block,
   type DoTask,
   type Lesson,
@@ -19,7 +23,20 @@ import {
   type Task,
 } from '@/lib/tutorial';
 import { terminalBridge, uiStore } from '@/lib/ui';
-import { IconBack, IconBook, IconCheck, IconChevron, IconLock, IconPlay } from './icons';
+import { closeTutorialWindow, openTutorialWindow } from './TutorialPopout';
+import { IconBack, IconBook, IconCheck, IconChevron, IconExternal, IconLock, IconPlay } from './icons';
+
+/** „1 nesplněný úkol“, „3 nesplněné úkoly“, „5 nesplněných úkolů“. */
+function unfinished(n: number): string {
+  if (n === 1) return '1 nesplněný úkol';
+  if (n >= 2 && n <= 4) return `${n} nesplněné úkoly`;
+  return `${n} nesplněných úkolů`;
+}
+
+/** Okno, ve kterém je prvek (tutoriál může běžet v samostatném okně). */
+function winOf(e: React.SyntheticEvent): Window {
+  return (e.currentTarget as HTMLElement).ownerDocument.defaultView ?? window;
+}
 
 /** Vykreslí text se značkami `kód` a **tučné**. */
 function Rich({ text }: { text: string }) {
@@ -135,7 +152,7 @@ function DoTaskBody({ task }: { task: DoTask }) {
       {task.action && (
         <button
           type="button"
-          onClick={task.action.run}
+          onClick={(e) => task.action!.run(winOf(e))}
           className="rounded-md border border-sky-500/50 bg-sky-500/15 px-2.5 py-1 text-xs font-medium text-sky-200 hover:bg-sky-500/25"
         >
           {task.action.label}
@@ -178,12 +195,11 @@ function DoTaskBody({ task }: { task: DoTask }) {
         )}
         <button
           type="button"
-          onClick={() => {
-            if (window.confirm('Přeskočit tento úkol? Bude označen jako přeskočený, ne splněný.')) skipTask(task.id);
-          }}
+          onClick={() => skipTask(task.id)}
+          title="Úkol se označí jako přeskočený a odemkne se další"
           className="text-slate-500 hover:text-slate-300"
         >
-          Přeskočit
+          Přeskočit úkol
         </button>
       </div>
     </div>
@@ -247,7 +263,14 @@ function TaskItem({ task, index, status }: { task: Task; index: number; status: 
           <Rich text={task.title} />
         </div>
       </div>
-      {task.kind === 'quiz' && status !== 'locked' && <QuizBody task={task} done={status === 'done'} />}
+      {status === 'skipped' && (
+        <div className="mt-1 pl-7 text-[11px]">
+          <button type="button" onClick={() => unskipTask(task.id)} className="text-slate-500 hover:text-slate-300">
+            Vrátit a splnit
+          </button>
+        </div>
+      )}
+      {task.kind === 'quiz' && status !== 'locked' && status !== 'skipped' && <QuizBody task={task} done={status === 'done'} />}
       {task.kind === 'do' && active && <DoTaskBody task={task} />}
     </li>
   );
@@ -279,15 +302,27 @@ function LessonView({ lesson, index }: { lesson: Lesson; index: number }) {
       </div>
 
       {!isTaskOpen(lesson.tasks[0].id, done) && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-100">
-          <span className="flex-1">Úkoly se odemknou, až dokončíte předchozí lekce. Výklad si ale můžete přečíst už teď.</span>
-          <button
-            type="button"
-            onClick={() => setLesson(firstOpenLesson(done))}
-            className="shrink-0 rounded-md bg-amber-500/20 px-2.5 py-1 text-xs font-semibold hover:bg-amber-500/30"
-          >
-            Přejít na lekci {firstOpenLesson(done) + 1}
-          </button>
+        <div className="space-y-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-100">
+          <p>Úkoly se odemknou, až dokončíte předchozí lekce. Výklad si ale můžete přečíst už teď.</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setLesson(firstOpenLesson(done))}
+              className="rounded-md bg-amber-500/20 px-2.5 py-1 text-xs font-semibold hover:bg-amber-500/30"
+            >
+              Přejít na lekci {firstOpenLesson(done) + 1}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                const n = unfinishedBefore(index, done);
+                if (winOf(e).confirm(`Přeskočit ${unfinished(n)} v předchozích lekcích a začít tady?`)) skipBefore(index);
+              }}
+              className="rounded-md px-2.5 py-1 text-xs font-semibold text-amber-200 hover:bg-amber-500/20"
+            >
+              Přeskočit a začít tady
+            </button>
+          </div>
         </div>
       )}
 
@@ -319,6 +354,21 @@ function LessonView({ lesson, index }: { lesson: Lesson; index: number }) {
         </ol>
       </section>
 
+      {!complete && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={(e) => {
+              const n = unfinishedBefore(index + 1, done);
+              if (winOf(e).confirm(`Přeskočit zbytek lekce? Jako přeskočené se označí: ${unfinished(n)}.`)) skipLesson(index);
+            }}
+            className="rounded-md px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          >
+            {index < LESSONS.length - 1 ? 'Přeskočit lekci →' : 'Přeskočit zbytek lekce'}
+          </button>
+        </div>
+      )}
+
       {complete && (
         <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-[13px] text-emerald-100">
           {index < LESSONS.length - 1 ? (
@@ -341,7 +391,7 @@ function LessonView({ lesson, index }: { lesson: Lesson; index: number }) {
   );
 }
 
-export default function TutorialPanel() {
+export default function TutorialPanel({ popout = false }: { popout?: boolean }) {
   const loaded = useStore(tutorialStore, (s) => s.loaded);
   const lessonIndex = useStore(tutorialStore, (s) => s.lesson);
   const done = useStore(tutorialStore, (s) => s.done);
@@ -390,6 +440,27 @@ export default function TutorialPanel() {
           >
             <IconBack width={14} height={14} className="rotate-180" />
           </button>
+          <span className="mx-0.5 hidden h-4 w-px bg-slate-700 lg:block" />
+          {popout ? (
+            <button
+              type="button"
+              onClick={closeTutorialWindow}
+              title="Vrátit tutoriál do panelu v hlavním okně"
+              className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+            >
+              <IconExternal width={13} height={13} className="rotate-180" /> Do panelu
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openTutorialWindow}
+              title="Otevřít tutoriál v samostatném okně"
+              aria-label="Otevřít tutoriál v samostatném okně"
+              className="hidden rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 lg:block"
+            >
+              <IconExternal width={14} height={14} />
+            </button>
+          )}
         </div>
         <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-400">
           <div
@@ -444,8 +515,8 @@ export default function TutorialPanel() {
           </ol>
           <button
             type="button"
-            onClick={() => {
-              if (window.confirm('Začít tutoriál znovu? Postup ve všech lekcích se vymaže (projekt, images a kontejnery zůstanou).')) {
+            onClick={(e) => {
+              if (winOf(e).confirm('Začít tutoriál znovu? Postup ve všech lekcích se vymaže (projekt, images a kontejnery zůstanou).')) {
                 resetTutorial();
                 setMenu(false);
               }

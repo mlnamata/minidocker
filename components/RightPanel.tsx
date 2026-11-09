@@ -22,6 +22,7 @@ import {
   IconTrash,
 } from './icons';
 import TutorialPanel from './TutorialPanel';
+import { closeTutorialWindow, focusTutorialWindow } from './TutorialPopout';
 
 /** Překreslení relativních časů („před 2 min“). */
 function useTick(ms = 10_000) {
@@ -394,6 +395,27 @@ function BrowserTab() {
   );
 }
 
+/* ---------------- Tutoriál v jiném okně ---------------- */
+
+function TutorialElsewhere() {
+  return (
+    <Empty
+      icon={<IconExternal width={32} height={32} />}
+      title="Tutoriál je otevřený v samostatném okně"
+      hint={
+        <span className="flex flex-wrap justify-center gap-2 pt-1">
+          <button type="button" onClick={focusTutorialWindow} className="rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-800">
+            Přepnout na okno
+          </button>
+          <button type="button" onClick={closeTutorialWindow} className="rounded-md border border-sky-500/50 bg-sky-500/15 px-2.5 py-1 text-xs text-sky-200 hover:bg-sky-500/25">
+            Vrátit do panelu
+          </button>
+        </span>
+      }
+    />
+  );
+}
+
 /* ---------------- Panel se záložkami ---------------- */
 
 export default function RightPanel() {
@@ -402,6 +424,7 @@ export default function RightPanel() {
   const containers = useStore(dockerStore, (s) => s.containers);
   const running = containers.filter((ct) => ct.status === 'running').length;
   const tutorialDone = useStore(tutorialStore, (s) => s.done);
+  const tutorialPopout = useStore(uiStore, (s) => s.tutorialPopout);
   const finished = ALL_TASKS.filter((t) => tutorialDone[t.id]).length;
 
   const tabs: Array<{ id: RightTab; label: string; badge?: string }> = [
@@ -433,7 +456,7 @@ export default function RightPanel() {
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-auto">
-        {tab === 'learn' && <TutorialPanel />}
+        {tab === 'learn' && (tutorialPopout ? <TutorialElsewhere /> : <TutorialPanel />)}
         {tab === 'images' && <ImagesTab />}
         {tab === 'containers' && <ContainersTab />}
         {/* Prohlížeč necháváme namountovaný, aby se iframe při přepínání záložek nenačítal znovu */}

@@ -14,6 +14,7 @@ export const KEYS = {
   containers: 'containers',
   layers: 'layers',
   history: 'history',
+  tutorial: 'tutorial',
   snapshot: (layerId: string) => `snap:${layerId}`,
 };
 

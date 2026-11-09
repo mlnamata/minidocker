@@ -146,3 +146,20 @@ export const IconCode = (p: P) => (
     <path d="M8 6l-6 6 6 6M16 6l6 6-6 6" />
   </Icon>
 );
+export const IconCheck = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+export const IconBook = (p: P) => (
+  <Icon {...p}>
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+    <path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
+  </Icon>
+);
+export const IconLock = (p: P) => (
+  <Icon {...p}>
+    <rect x="5" y="11" width="14" height="10" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Icon>
+);

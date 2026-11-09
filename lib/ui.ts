@@ -2,7 +2,7 @@
 
 import { Store } from './store';
 
-export type RightTab = 'images' | 'containers' | 'browser';
+export type RightTab = 'learn' | 'images' | 'containers' | 'browser';
 export type MobileTab = 'files' | 'editor' | 'docker' | 'terminal';
 export type WcStatus = 'idle' | 'booting' | 'ready' | 'error' | 'unsupported';
 
@@ -20,7 +20,7 @@ export interface UiState {
 }
 
 export const uiStore = new Store<UiState>({
-  rightTab: 'images',
+  rightTab: 'learn',
   mobileTab: 'editor',
   wc: 'idle',
   wcError: null,

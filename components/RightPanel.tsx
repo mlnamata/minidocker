@@ -6,6 +6,7 @@ import { dockerStore, engine } from '@/lib/engine';
 import { formatBytes, timeAgoCs } from '@/lib/format';
 import { shortId } from '@/lib/hash';
 import { useStore } from '@/lib/store';
+import { ALL_TASKS, tutorialStore } from '@/lib/tutorial';
 import type { Container, Image } from '@/lib/types';
 import { browserBack, browserReload, openInBrowser, terminalBridge, uiStore, type RightTab } from '@/lib/ui';
 import {
@@ -20,6 +21,7 @@ import {
   IconStop,
   IconTrash,
 } from './icons';
+import TutorialPanel from './TutorialPanel';
 
 /** Překreslení relativních časů („před 2 min“). */
 function useTick(ms = 10_000) {
@@ -399,8 +401,11 @@ export default function RightPanel() {
   const images = useStore(dockerStore, (s) => s.images);
   const containers = useStore(dockerStore, (s) => s.containers);
   const running = containers.filter((ct) => ct.status === 'running').length;
+  const tutorialDone = useStore(tutorialStore, (s) => s.done);
+  const finished = ALL_TASKS.filter((t) => tutorialDone[t.id]).length;
 
   const tabs: Array<{ id: RightTab; label: string; badge?: string }> = [
+    { id: 'learn', label: 'Tutoriál', badge: `${finished}/${ALL_TASKS.length}` },
     { id: 'images', label: 'Images', badge: String(images.length) },
     { id: 'containers', label: 'Kontejnery', badge: containers.length ? `${running}/${containers.length}` : '0' },
     { id: 'browser', label: 'Prohlížeč' },
@@ -428,6 +433,7 @@ export default function RightPanel() {
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-auto">
+        {tab === 'learn' && <TutorialPanel />}
         {tab === 'images' && <ImagesTab />}
         {tab === 'containers' && <ContainersTab />}
         {/* Prohlížeč necháváme namountovaný, aby se iframe při přepínání záložek nenačítal znovu */}

@@ -3,6 +3,7 @@
 import type { Terminal } from '@xterm/xterm';
 import { c, stripAnsi } from './ansi';
 import { runCommandLine } from './cli';
+import { recordCommand } from './commandLog';
 import type { ForegroundJob } from './cliCommon';
 import { engine } from './engine';
 import { allDirs, projectStore } from './project';
@@ -387,6 +388,7 @@ export class Shell {
         code = 1;
         this.write(c.red(`Chyba: ${(e as Error)?.message ?? e}`) + '\n');
       }
+      recordCommand(trimmed, code);
     }
 
     this.fg = null;

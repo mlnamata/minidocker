@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { engine } from '@/lib/engine';
+import { commandLog } from '@/lib/commandLog';
+import { dockerStore, engine } from '@/lib/engine';
 import { initProject, projectStore, startProjectSync } from '@/lib/project';
 import { useStore } from '@/lib/store';
+import { startTutorial, tutorialStore } from '@/lib/tutorial';
 import { openInBrowser, terminalBridge, uiStore, type MobileTab } from '@/lib/ui';
 import { bootWebContainer, checkSupport, type SupportInfo } from '@/lib/webcontainer';
 import EditorPane from './EditorPane';
@@ -62,10 +64,11 @@ export default function MiniDocker() {
     const offOpen = engine.onOpen((url) => openInBrowser(url));
     if (process.env.NODE_ENV !== 'production') {
       // Ladicí přístup z konzole prohlížeče (jen v dev režimu)
-      Object.assign(window, { __minidocker: { engine, projectStore, uiStore, terminalBridge } });
+      Object.assign(window, { __minidocker: { engine, dockerStore, projectStore, uiStore, terminalBridge, commandLog, tutorialStore } });
     }
     (async () => {
       await Promise.all([projectStore.get().loaded ? null : initProject(), engine.loadState()]);
+      void startTutorial();
       if (!support.ok) {
         uiStore.set({ wc: 'unsupported', wcError: support.error ?? null });
         engine.fail(new Error(support.error));

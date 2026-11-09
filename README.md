@@ -13,6 +13,7 @@ v zabudovaném prohlížeči. Žádný backend: Node.js běží přímo ve strá
 - **Docker Compose**: `depends_on` (topologické řazení, detekce cyklu), porty, ENV, „DNS“ mezi službami
 - **Perzistence**: projekt, images i kontejnery se ukládají do IndexedDB a obnoví se po reloadu
 - **Export ZIP**: projekt jde spustit i ve skutečném Dockeru
+- **Tutoriál s úkoly**: 8 lekcí základů Dockeru, úkoly se samy ověří podle stavu images, kontejnerů a příkazů v terminálu
 
 ## Rychlý start
 
@@ -97,6 +98,28 @@ docker compose up [-d] [--build] | down [--rmi all] | ps [-a] | logs [-f] | buil
 clear, help, cd, pwd         (ostatní příkazy → jsh shell WebContaineru)
 ```
 
+## Tutoriál
+
+Záložka **Tutoriál** v pravém panelu provede základy Dockeru v 8 lekcích. Každá lekce má krátký
+výklad a úkoly, které se odškrtnou samy, jakmile je splníte (aplikace sleduje images, kontejnery,
+soubory projektu, záložku Prohlížeč a příkazy zadané v terminálu). Na konci lekce je kvíz.
+
+| # | Lekce | Co si vyzkoušíte |
+| --- | --- | --- |
+| 1 | Co je Docker | image vs. kontejner, `docker version`, `docker pull`, `docker images` |
+| 2 | Dockerfile a build image | instrukce Dockerfile, `docker build -t`, `docker history`, cache vrstev |
+| 3 | Spuštění kontejneru | `docker run -d -p --name`, `docker ps`, `docker logs`, náhled v prohlížeči |
+| 4 | Životní cyklus kontejneru | `stop`, `start`, `ps -a`, `exec`, `rm -f` |
+| 5 | Změny, tagy a proměnné prostředí | úprava Dockerfile, rebuild, `docker tag`, `-e`, `docker inspect` |
+| 6 | Vlastní Dockerfile od nuly | vlastní `hello/Dockerfile`, build kontext `./hello`, kontejner, který skončí |
+| 7 | Docker Compose | `docker compose up -d`, `ps`, `logs`, `down`, DNS podle názvu služby |
+| 8 | Úklid | `docker rm`, `docker rmi`, rozdíl mezi nimi |
+
+Úkoly jdou postupně: další se odemkne až po splnění předchozího (u příkazů se počítá jen to, co
+zadáte po splnění předchozího úkolu). Zaseknutý úkol jde přeskočit, u každého je nápověda
+a řešení, které lze jedním klikem spustit v terminálu. Postup se ukládá do IndexedDB;
+začít znovu lze z menu lekcí. Obsah lekcí je v `lib/tutorial.ts`.
+
 ## Šablony
 
 1. **Node Express**: `server.js`, `package.json`, `Dockerfile` (node:20-alpine, `npm install`, EXPOSE 3000)
@@ -107,7 +130,7 @@ clear, help, cd, pwd         (ostatní příkazy → jsh shell WebContaineru)
 
 ```
 app/                  Next.js App Router (layout, stránka, globální CSS)
-components/           UI: TopBar, FileExplorer, EditorPane, RightPanel, TerminalPane
+components/           UI: TopBar, FileExplorer, EditorPane, RightPanel, TutorialPanel, TerminalPane
 lib/dockerfile.ts     parser a validace Dockerfile
 lib/compose.ts        parser docker-compose.yml, topologické řazení
 lib/engine.ts         „Docker daemon“: build s cache vrstev, kontejnery, porty, logy
@@ -116,6 +139,8 @@ lib/shell.ts          shell nad xterm.js (editace řádku, historie, úlohy na p
 lib/project.ts        soubory projektu + synchronizace do WebContaineru
 lib/storage.ts        IndexedDB (idb-keyval)
 lib/templates.ts      šablony projektů
+lib/tutorial.ts       lekce tutoriálu, kontroly úkolů a sledování postupu
+lib/commandLog.ts     záznam příkazů z terminálu (pro kontrolu úkolů)
 scripts/copy-monaco.mjs  kopie Monaco editoru do public/
 ```
 

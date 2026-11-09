@@ -30,6 +30,8 @@ export interface CheckCtx {
   template: string;
   activeFile: string | null;
   browserUrl: string;
+  /** Otevřel/načetl uživatel sám (ne automaticky) od splnění předchozího úkolu stránku začínající `prefix`? */
+  userBrowsed: (prefix: string) => boolean;
   /** Byl od splnění předchozího úkolu úspěšně spuštěn příkaz odpovídající regexu? */
   ran: (re: RegExp) => boolean;
   image: (ref: string) => Image | undefined;
@@ -297,10 +299,11 @@ export const LESSONS: Lesson[] = [
       {
         id: 'run-browser',
         kind: 'do',
-        title: 'Otevřete aplikaci v záložce **Prohlížeč** (tlačítko **Otevřít** u kontejneru `web` v záložce Kontejnery). Zkuste stránku několikrát načíst.',
+        title: 'Prohlédněte si běžící aplikaci: v záložce **Kontejnery** klikněte u kontejneru `web` na **Otevřít**, případně stránku v záložce **Prohlížeč** znovu načtěte (⟳). Počítadlo návštěv se zvýší.',
+        hint: 'Po startu serveru se aplikace v Prohlížeči obvykle otevře sama – úkol ale chce, abyste ji otevřeli nebo načetli vy.',
         check: (ctx) => {
           const url = ctx.container('web')?.url;
-          return !!url && ctx.browserUrl.startsWith(url);
+          return !!url && ctx.userBrowsed(url);
         },
       },
       {
@@ -598,10 +601,10 @@ export const LESSONS: Lesson[] = [
       {
         id: 'compose-browser',
         kind: 'do',
-        title: 'Otevřete službu `web` v Prohlížeči a klikněte na tlačítko, které zavolá API.',
+        title: 'Otevřete službu `web` v Prohlížeči (tlačítko **Otevřít** u kontejneru `…-web-1` v záložce Kontejnery) a klikněte na tlačítko, které zavolá API.',
         check: (ctx) => {
           const web = ctx.containers.find((ct) => ct.compose?.service === 'web' && ct.url);
-          return !!web?.url && ctx.browserUrl.startsWith(web.url);
+          return !!web?.url && ctx.userBrowsed(web.url);
         },
       },
       {
@@ -746,6 +749,7 @@ function makeCtx(since: number): CheckCtx {
     template,
     activeFile: active,
     browserUrl: uiStore.get().browserUrl,
+    userBrowsed: (prefix) => browserLog.some((e) => e.t >= since && e.url.startsWith(prefix)),
     ran: (re) => commands.some((rec) => segments(rec).some((s) => re.test(s))),
     image: (ref) => {
       const tagged = normalizeRef(ref);
@@ -883,6 +887,19 @@ function scheduleEvaluate() {
   }, 50);
 }
 
+/** Navigace v Prohlížeči, které spustil uživatel (ne auto-open po startu serveru). */
+const browserLog: Array<{ url: string; t: number }> = [];
+let lastNonce = 0;
+function trackBrowser() {
+  const { browserNonce, browserAuto, browserUrl } = uiStore.get();
+  if (browserNonce === lastNonce) return;
+  lastNonce = browserNonce;
+  if (!browserAuto && browserUrl) {
+    browserLog.push({ url: browserUrl, t: Date.now() });
+    if (browserLog.length > 100) browserLog.shift();
+  }
+}
+
 let started = false;
 
 /** Načte uložený postup a začne sledovat stav Dockeru, projektu a terminálu. */
@@ -897,7 +914,11 @@ export async function startTutorial(): Promise<void> {
   });
   dockerStore.subscribe(scheduleEvaluate);
   projectStore.subscribe(scheduleEvaluate);
-  uiStore.subscribe(scheduleEvaluate);
+  lastNonce = uiStore.get().browserNonce;
+  uiStore.subscribe(() => {
+    trackBrowser();
+    scheduleEvaluate();
+  });
   commandLog.subscribe(scheduleEvaluate);
   scheduleEvaluate();
 }

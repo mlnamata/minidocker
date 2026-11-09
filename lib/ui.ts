@@ -15,6 +15,8 @@ export interface UiState {
   browserHistory: string[];
   browserIndex: number;
   browserNonce: number;
+  /** Poslední navigaci v Prohlížeči spustila aplikace sama (auto-open po startu serveru), ne uživatel. */
+  browserAuto: boolean;
   /** Vybraná složka v průzkumníku (kam se vytvoří nový soubor). */
   selectedDir: string;
   /** Tutoriál je otevřený v samostatném okně. */
@@ -30,11 +32,12 @@ export const uiStore = new Store<UiState>({
   browserHistory: [],
   browserIndex: -1,
   browserNonce: 0,
+  browserAuto: false,
   selectedDir: '',
   tutorialPopout: false,
 });
 
-export function openInBrowser(url: string, switchTab = true): void {
+export function openInBrowser(url: string, switchTab = true, auto = false): void {
   const s = uiStore.get();
   const history = [...s.browserHistory.slice(0, s.browserIndex + 1), url];
   uiStore.set({
@@ -42,6 +45,7 @@ export function openInBrowser(url: string, switchTab = true): void {
     browserHistory: history,
     browserIndex: history.length - 1,
     browserNonce: s.browserNonce + 1,
+    browserAuto: auto,
     ...(switchTab ? { rightTab: 'browser' as const, mobileTab: 'docker' as const } : {}),
   });
 }
@@ -50,11 +54,11 @@ export function browserBack(): void {
   const s = uiStore.get();
   if (s.browserIndex <= 0) return;
   const i = s.browserIndex - 1;
-  uiStore.set({ browserIndex: i, browserUrl: s.browserHistory[i], browserNonce: s.browserNonce + 1 });
+  uiStore.set({ browserIndex: i, browserUrl: s.browserHistory[i], browserNonce: s.browserNonce + 1, browserAuto: false });
 }
 
 export function browserReload(): void {
-  uiStore.set((s) => ({ browserNonce: s.browserNonce + 1 }));
+  uiStore.set((s) => ({ browserNonce: s.browserNonce + 1, browserAuto: false }));
 }
 
 /**

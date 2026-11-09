@@ -62,7 +62,10 @@ export default function MiniDocker() {
 
   useEffect(() => {
     let stopSync: (() => void) | undefined;
-    const offOpen = engine.onOpen((url) => openInBrowser(url, true, true));
+    const offOpen = engine.onOpen((url) =>
+      // Když je otevřený Tutoriál, nepřepínáme záložku – student by ztratil zadání úkolu
+      openInBrowser(url, uiStore.get().rightTab !== 'learn' || uiStore.get().tutorialPopout, true),
+    );
     if (process.env.NODE_ENV !== 'production') {
       // Ladicí přístup z konzole prohlížeče (jen v dev režimu)
       Object.assign(window, { __minidocker: { engine, dockerStore, projectStore, uiStore, terminalBridge, commandLog, tutorialStore } });
